@@ -11,6 +11,7 @@ The simulator provides an interactive 3D visualization of satellite orbits, supp
 - **Satellite Animation** — Animated satellite model with Play and Pause controls.
 - **Orbital Calculations** — Calculate orbital periods, perigee, and apogee altitudes.
 - **Energy Conservation Analysis** — Track relative energy error to evaluate the numerical simulation.
+- **Dynamic Satellite Trail** — A yellow trail that grows behind the satellite during animation.
 - **Physics Tests** — Automated tests using pytest.
 
 ## Preview

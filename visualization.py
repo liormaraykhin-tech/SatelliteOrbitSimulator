@@ -37,11 +37,23 @@ def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,pe
     frames=[]
 
     # Generate the satellite body and solar panels for each frame
-    for position in animation_positions:
+    for i, position in enumerate(animation_positions):
         satellite_body, right_panel, left_panel=create_satellite(position,200000)
+        trail_positions=animation_positions[:i+1]
+        trail_frame=go.Scatter3d(
+            x=trail_positions[:, 0],
+            y=trail_positions[:, 1],
+            z=trail_positions[:, 2],
+            mode="lines",
+            line=dict(color="yellow", width=5)
+
+        )
 
         # Update only the three satellite traces in each frame
-        frame = go.Frame(data=[satellite_body, right_panel, left_panel] , traces = [1,2,3])
+        frame = go.Frame(
+            data=[satellite_body, right_panel, left_panel, trail_frame],
+            traces=[1, 2, 3, 4]
+        )
         frames.append(frame)
 
     # Create and display the satellite body at its initial orbital position
@@ -49,6 +61,15 @@ def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,pe
     fig.add_trace(satellite_body)
     fig.add_trace(right_panel)
     fig.add_trace(left_panel)
+    trail=go.Scatter3d(
+        x=[],
+        y=[],
+        z=[],
+        mode="lines",
+        name="Satellite Trail",
+        line=dict(color="yellow", width=5),
+    )
+    fig.add_trace(trail)
     # Generate angular values for the Earth's spherical surface
     alpha = np.linspace(0, 2 * np.pi, 400)
     theta = np.linspace(0, np.pi, 200)
