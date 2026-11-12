@@ -11,7 +11,7 @@ def plot_energy_error(times,relative_energy_error):
     return (energy_fig)
 
 
-def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,perigee_altitude,apogee_altitude,orbit_type,orbital_period):
+def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,perigee_altitude,apogee_altitude,orbit_type,orbital_period, speeds):
     x_positions=positions_array[:,0]
     y_positions=positions_array[:,1]
     z_positions=positions_array[:,2]
@@ -30,6 +30,7 @@ def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,pe
 
     # Sample every 50th position to create animation frames
     animation_positions=positions_array[::50]
+    animation_speeds=speeds[::50]
 
     satellite_position = positions_array[0]
 
@@ -38,8 +39,40 @@ def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,pe
 
     # Generate the satellite body and solar panels for each frame
     for i, position in enumerate(animation_positions):
+        # Calculate the satellite's speed, altitude, and elapsed simulation time for each frame
+        current_speed=animation_speeds[i]/1000
+        current_altitude=(np.linalg.norm(position)-earth_radius)/1000
+        current_time=i*50
+
+        # Format the live satellite telemetry
+        telemetry_text = (
+            f"Speed: {current_speed:.2f} km/s"
+            f"<br>Altitude: {current_altitude:.2f} km"
+            f"<br>Elapsed Time: {current_time:.0f} s"
+        )
+
+        # Create a styled telemetry panel that displays live data for the current animation frame
+        telemetry_annotation= go.layout.Annotation(text=telemetry_text,
+                                                   x=0.02,
+                                                   y=0.95,
+                                                   xref="paper",
+                                                   yref = "paper",
+                                                   showarrow=False,
+                                                   xanchor="left",
+                                                   yanchor="top",
+                                                   font=dict(color="white", size=14),
+                                                   bgcolor="#101827",
+                                                   bordercolor="#64748B",
+                                                   borderpad=10,
+
+        )
         satellite_body, right_panel, left_panel=create_satellite(position,200000)
+
+        # Store all sampled satellite positions up to the current animation frame
         trail_positions=animation_positions[:i+1]
+
+
+        # Create a 3D line showing the satellite's traveled path
         trail_frame=go.Scatter3d(
             x=trail_positions[:, 0],
             y=trail_positions[:, 1],
@@ -49,10 +82,14 @@ def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,pe
 
         )
 
-        # Update only the three satellite traces in each frame
+        # Update the satellite, its trail, and telemetry in each animation frame
         frame = go.Frame(
             data=[satellite_body, right_panel, left_panel, trail_frame],
-            traces=[1, 2, 3, 4]
+            traces=[1, 2, 3, 4],
+            layout=go.Layout(
+            annotations = [telemetry_annotation],
+
+        )
         )
         frames.append(frame)
 
@@ -61,6 +98,8 @@ def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,pe
     fig.add_trace(satellite_body)
     fig.add_trace(right_panel)
     fig.add_trace(left_panel)
+
+    # Initialize an empty satellite trail to be updated during animation
     trail=go.Scatter3d(
         x=[],
         y=[],
@@ -180,6 +219,8 @@ def plot_orbit(positions_array,earth_radius, perigee_position,apogee_position,pe
                    zaxis=dict(showbackground=False),
                    )
     )
+    # Display the initial telemetry before the animation starts
+    fig.update_layout(annotations=frames[0].layout.annotations)
 
     # Attach the animation frames to the 3D figure
     fig.frames=frames
@@ -229,7 +270,6 @@ def create_satellite(position,size):
                    i=[0, 0,4 , 4, 0, 0, 3, 3, 0, 0, 1, 1],
                    j=[1, 2, 6, 7, 4, 5, 2, 6, 3, 7, 5 ,6],
                    k=[2, 3, 5 ,6, 5, 1, 6, 7, 7, 4, 6 , 2],
-
     )
     right_panel_x=[x + half_size,x + half_size,x + half_size + panel_length,x + half_size + panel_length]
     panel_y=[y - panel_width / 2,y + panel_width / 2,y + panel_width / 2 ,y - panel_width / 2]

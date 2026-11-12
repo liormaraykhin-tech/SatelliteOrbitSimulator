@@ -121,7 +121,7 @@ if orbit_type != "circular":
 else:
     print(f"Orbital Altitude: {perigee_altitude:.2f} km")
 
-fig=plot_orbit(positions_array,EARTH_RADIUS,perigee_position,apogee_position, perigee_altitude, apogee_altitude,orbit_type, orbital_period)
+fig=plot_orbit(positions_array,EARTH_RADIUS,perigee_position,apogee_position, perigee_altitude, apogee_altitude,orbit_type, orbital_period , speeds)
 
 # Display the 3D satellite orbit visualization
 fig.show()
